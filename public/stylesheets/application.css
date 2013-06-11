@@ -1,0 +1,8 @@
+#layout_container {
+	background-color: white;
+}
+
+#layout_infobox {
+	float: right;
+	width: 250px;
+}
