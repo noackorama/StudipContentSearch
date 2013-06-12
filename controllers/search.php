@@ -11,6 +11,13 @@ class SearchController extends ApplicationController
         PageLayout::addStylesheet('jquery-ui-multiselect.css');
         PageLayout::addScript('ui.multiselect.js');
         parent::before_filter($action, $args);
+        $_SESSION['_search_data']['_search_result'] = unserialize(gzuncompress($_SESSION['_search_data']['_search_result']));
+    }
+
+    function after_filter($action, $args)
+    {
+        $_SESSION['_search_data']['_search_result'] = gzcompress(serialize($_SESSION['_search_data']['_search_result']));
+        parent::after_filter($action, $args);
     }
 
     function index_action(){
@@ -69,6 +76,13 @@ class SearchController extends ApplicationController
             }
             $sem_choosen = is_array($_SESSION['_search_data']['_search_only']['choose_sem']);
             $object_ids = array();
+            if (0 === preg_match('/["*+-<>~()]+/', $_SESSION['_search_data']['_search_query'])) {
+                $suchwoerter = explode(" ", $_SESSION['_search_data']['_search_query']);
+                foreach($suchwoerter as $key => $word) {
+                    $suchwoerter[$key] = '+'.$word;
+                }
+                $_SESSION['_search_data']['_search_query'] = implode(" ", $suchwoerter);
+            }
             $search_for = '+('.$_SESSION['_search_data']['_search_query'] .')'. $search_exts;
             if(!$GLOBALS['perm']->have_perm('root')) {
                 if($_SESSION['_search_data']['_search_only']['my_sem'] || $sem_choosen){
@@ -178,14 +192,18 @@ class SearchController extends ApplicationController
                         $_SESSION['_search_data']['_search_result'][$row['dokument_id']] = $row;
                     }
             }
-            if (count($_SESSION['_search_data']['_search_result'])){
-                $this->flash_now('success', sprintf(_("Ihre Suche ergab %s Treffer."), count($_SESSION['_search_data']['_search_result'])));
+            if ($c = count($_SESSION['_search_data']['_search_result'])){
+                $msg = sprintf(_("Ihre Suche ergab %s Treffer."), $c);
+                if ($c > 500) {
+                     $this->flash_set('info', _("Es werden nur maximal 500 Treffer angezeigt!."));
+                     $_SESSION['_search_data']['_search_result'] = array_slice($_SESSION['_search_data']['_search_result'], 0, 500, true);
+                }
+                $this->flash_set('success', $msg);
             } else {
-                $this->flash_now('info', _("Ihre Suche ergab keine Treffer."));
+                $this->flash_set('info', _("Ihre Suche ergab keine Treffer."));
             }
         }
-        $this->index_action();
-        $this->render_action('index');
+        $this->redirect($this->url_for('search'));
     }
 
     function change_start_result_action(){
