@@ -342,7 +342,7 @@ class SearchController extends ApplicationController
         $ret = array();
         $sql = "SELECT COUNT( * ) AS  c ,  `filetype`
                 FROM  `content_search_dokumente_index`
-                GROUP BY  `filetype` ORDER by c DESC";
+                GROUP BY  `filetype` ORDER by c DESC LIMIT 10";
         foreach (DbManager::get()->query($sql) as $row)  {
             if ($row['c'] > 10) $ret[] = trim($row['filetype'], '_');
         }

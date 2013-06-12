@@ -12,11 +12,10 @@ if ($result){
 	echo "\n</tr></table>";
 	echo "\n<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">";
 	$content = '<div align="center">';
-	$content .= '<a href="' . UrlHelper::getLink(GetDownloadLink($result["dokument_id"], $result["filename"], 0, 'force_download')) . '">';
-	$content .= makeButton("herunterladen", "img") . "</a>";
+	$content .= \Studip\LinkButton::create(_('Herunterladen'), UrlHelper::getLink(GetDownloadLink($result["dokument_id"], $result["filename"], 0, 'force_download')));
 	if ( !in_array($ext, array("zip","tgz","gz","bz2")) ){
-		$content .= '&nbsp;<a href="' . UrlHelper::getLink(GetDownloadLink($result["dokument_id"], $result["filename"], 0, 'zip')) .'">';
-		$content .= makeButton("alsziparchiv", "img") . "</a>";
+		$content .= '&nbsp;';
+		$content .= \Studip\LinkButton::create(_('Als ZIP-Archiv'), UrlHelper::getLink(GetDownloadLink($result["dokument_id"], $result["filename"], 0, 'zip')));
 	}
 	$content .= '</div>';
 	$content .= "<b>" . sprintf(_("Dateiname")) . ":</b>";

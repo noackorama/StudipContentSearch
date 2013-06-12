@@ -2,11 +2,8 @@
 <div>
 <?=_("Hier können Sie eine Volltextsuche in den Inhalten von Veranstaltungen durchführen")?>
 </div>
-<div style="text-align:center;margin-top:10px;margin-bottom:10px;">
-<?= Assets::img('border.jpg', 'heigth="2" width="80%"') ?>
-</div>
-<table width = "100%" border="0" cellspacing = "0" cellpadding = "2" align="center">
 <form action="<?=$controller->url_for('search/perform')?>" method="post">
+<table width = "100%" border="0" cellspacing = "0" cellpadding = "2" align="center">
 <tr>
     <td>
     <b><?=_("Suchbegriff(e)")?></b>
@@ -52,15 +49,14 @@
     </tr>
     <tr>
     <td colspan="3" align="center">
-    <?=makeButton('ok', 'input', _("Suche starten"), 'search')?>
+    <?=\Studip\Button::createAccept(_("Suche starten"), 'search');?>
     &nbsp;
-    <?=makeButton('zuruecksetzen', 'input', _("Suche zurücksetzen"),'cancel')?>
+    <?=\Studip\Button::createCancel(_("Suche zurücksetzen"), 'cancel');?>
     &nbsp;
     </td>
     </tr>
 </table>
-<div style="text-align:center;margin-top:10px;margin-bottom:10px;">
-<?= Assets::img('border.jpg', 'heigth="2" width="80%"') ?>
+<div>
 </div>
 </form>
 <?php

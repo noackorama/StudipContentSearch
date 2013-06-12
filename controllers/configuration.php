@@ -44,6 +44,8 @@ class ConfigurationController extends ApplicationController
         $db = DBManager::get();
         if ($truncate) {
             $db->exec("TRUNCATE TABLE content_search_dokumente_index");
+        } else {
+            $db->exec("DELETE FROM content_search_dokumente_index where dokument_id not in (SELECT dokument_id FROM dokumente where seminar_id in (select seminar_id from seminare union select institut_id from Institute))");
         }
         $rs = $db->query("SELECT dokument_id FROM dokumente where seminar_id in (select seminar_id from seminare union select institut_id from Institute)");
         $num = 0;

@@ -4,7 +4,7 @@
 <?=_("Volltextindex aktualisieren")?>
 </div>
 <div style="float:left;display:inline">
-<?=makeButton('erstellen','input','','recreate_index')?>
+<?=\Studip\Button::createAccept('OK', 'recreate_index');?>
 <input type="checkbox" name="truncate_index" id="truncate_index" value="1">
 <label for="truncate_index"><?=_("Index löschen")?></label>
 </div>
@@ -14,7 +14,7 @@
 <?=_("Konfiguration zurücksetzen")?>
 </div>
 <div style="float:left;display:inline">
-<?=makeButton('ok','input','','revert_config')?>
+<?=\Studip\Button::createAccept('OK', 'revert_config');?>
 </div>
 <div style="clear:both">&nbsp;</div>
 
@@ -42,7 +42,7 @@
         <br>
     <? endif;?>
 <? endforeach; ?>
-<?=makeButton('ok','input','','check_config')?>
+<?=\Studip\Button::createAccept('OK', 'check_config');?>
 </div>
 </form>
 </div>

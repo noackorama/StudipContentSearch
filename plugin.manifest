@@ -1,5 +1,5 @@
 pluginclassname=StudipContentSearch
 pluginname=StudipContentSearch
 origin=data-quest
-version=0.5
-StudipMinVersion=2.1
+version=0.6
+StudipMinVersion=2.3
