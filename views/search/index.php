@@ -30,6 +30,27 @@
         <label for="search_only[public_sem]" style="font-size:10pt;font-weight:bold;">&nbsp;<?=_("Alle zugänglichen Veranstaltungen")?></label>
         </td>
         </tr>
+        <tr>
+        <td>
+        <b><?=_("Veranstaltungen wählen")?></b>
+        <? if (is_array($search_data['_search_only']['choose_sem'])) : ?>
+        <span style="padding-left:5px;font-size:smaller"><?=sprintf('(%s ausgewählt)', count($search_data['_search_only']['choose_sem']))?></span>
+        <? endif; ?>
+        </td>
+        <td align="left" colspan="2" style="white-space: nowrap;">
+        <select multiple size="3" name="search_only[choose_sem][]" id="search_only_choose_sem"  return false">
+        <?php
+        foreach ($my_sem as $id => $name) {
+            $selected = in_array($id, (array)$search_data['_search_only']['choose_sem']) ? 'selected' : '';
+            echo "\n" . '<option value="'.$id.'" ' . $selected. ' >' . htmlReady(my_substr($name,0,80)) . '</option>';
+        }
+        ?>
+        </select>
+        <a href="#" onClick="jQuery('#search_only_choose_sem').css('height', '120px'); STUDIP.MultiSelect.create('#search_only_choose_sem', 'Veranstaltungen'); jQuery(this).hide(); return false">
+        <?=Assets::img("icons/16/blue/plus.png", array('title' => _("Mehrere Veranstaltungen auswählen"), "class" => "middle"))?>
+        </a>
+        </td>
+        </tr>
     <?php }?>
     <tr>
         <td>

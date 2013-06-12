@@ -6,6 +6,13 @@ require_once "lib/visual.inc.php";
 
 class SearchController extends ApplicationController
 {
+    function before_filter($action, $args)
+    {
+        PageLayout::addStylesheet('jquery-ui-multiselect.css');
+        PageLayout::addScript('ui.multiselect.js');
+        parent::before_filter($action, $args);
+    }
+
     function index_action(){
 
         if (!$_SESSION['_search_data']['sortby']){
@@ -31,19 +38,23 @@ class SearchController extends ApplicationController
         }
         $this->search_data = $_SESSION['_search_data'];
         $this->extensions = $this->get_used_file_extensions();
+        if (in_array($GLOBALS['perm']->get_perm(), words('autor tutor dozent'))) {
+            $this->my_sem = array_filter(array_map(function($a) {return $a['type'] == 'sem' ? $a['name'] : null;}, search_range(true,false,false)));
+            natcasesort($this->my_sem);
+        }
         $this->get_infobox_content();
         Navigation::activateItem("/search/{$this->plugin->me}/search");
     }
 
     function perform_action(){
-        if (!isset($_REQUEST['cancel_x']) && isset($_REQUEST['search_query'])){
-            $_SESSION['_search_data']['_search_query'] = trim(stripslashes($_REQUEST['search_query']));
-            $_SESSION['_search_data']['_search_only'] = $_REQUEST['search_only'];
+        if (!Request::submitted('cancel') && isset($_REQUEST['search_query'])){
+            $_SESSION['_search_data']['_search_query'] = trim(Request::get('search_query'));
+            $_SESSION['_search_data']['_search_only'] = Request::getArray('search_only');
             unset($_SESSION['_search_data']['_search_result']);
             $_SESSION['_search_data']['_start_result'] = 1;
             $this->do_sort = true;
         }
-        if (isset($_REQUEST['cancel_x'])){
+        if (Request::submitted('cancel')) {
             unset($_SESSION['_search_data']['_search_query']);
             unset($_SESSION['_search_data']['_search_only']);
             unset($_SESSION['_search_data']['_search_result']);
@@ -56,16 +67,23 @@ class SearchController extends ApplicationController
             if (!$_SESSION['_search_data']['_search_only']['ext']['all'] && count($_SESSION['_search_data']['_search_only']['ext'])) {
                 $search_exts = ' +(' . join(' ', array_map(create_function('$e','return str_pad($e,6,"_",STR_PAD_BOTH);'),array_keys($_SESSION['_search_data']['_search_only']['ext']))).')';
             }
+            $sem_choosen = is_array($_SESSION['_search_data']['_search_only']['choose_sem']);
             $object_ids = array();
             $search_for = '+('.$_SESSION['_search_data']['_search_query'] .')'. $search_exts;
             if(!$GLOBALS['perm']->have_perm('root')) {
-                if($_SESSION['_search_data']['_search_only']['my_sem']){
+                if($_SESSION['_search_data']['_search_only']['my_sem'] || $sem_choosen){
                     $sql = "SELECT content_search_dokumente_index.*, 'sem' as object_type, 1 as access_granted,modules,su.status as object_perm, s.status as object_status FROM seminar_user su
                             INNER JOIN content_search_dokumente_index ON(seminar_id=object_id)
                             INNER JOIN seminare s ON s.seminar_id = su.seminar_id
                             WHERE su.user_id=? AND (MATCH(content_search_dokumente_index.name,description,filename,owner,content,filetype) AGAINST (? IN BOOLEAN MODE)) ";
+                    if ($sem_choosen) {
+                        $sql .= " AND su.seminar_id IN(?)";
+                        $params = array($GLOBALS['user']->id, $search_for, $_SESSION['_search_data']['_search_only']['choose_sem']);
+                    } else {
+                        $params = array($GLOBALS['user']->id, $search_for);
+                    }
                     $st = DbManager::get()->prepare($sql);
-                    $st->execute(array($GLOBALS['user']->id, $search_for));
+                    $st->execute($params);
                     while($row = $st->fetch(PDO::FETCH_ASSOC)) {
                         $_SESSION['_search_data']['_search_result'][$row['dokument_id']] = $row;
                         $object_ids[$row['object_id']]['docs'][] = $row['dokument_id'];
@@ -75,7 +93,7 @@ class SearchController extends ApplicationController
                         $object_ids[$row['object_id']]['user_status'] = $row['object_perm'];
                     }
                 }
-                if($_SESSION['_search_data']['_search_only']['public_sem']){
+                if($_SESSION['_search_data']['_search_only']['public_sem'] && !$sem_choosen) {
                     $sql = "SELECT content_search_dokumente_index.*, 'sem' as object_type, 0 as access_granted,modules,s.status as object_status FROM seminare s
                     INNER JOIN content_search_dokumente_index ON(seminar_id=object_id)
                         WHERE s.seminar_id NOT IN(?) AND s.visible=1 AND s.Lesezugriff IN(0,1) AND admission_type=0
@@ -97,20 +115,22 @@ class SearchController extends ApplicationController
                         $object_ids[$row['object_id']]['modules'] = $row['modules'];
                     }
                 }
-                $sql = "SELECT content_search_dokumente_index.*, 'inst' as object_type, 1 as access_granted, inst_perms as object_perm,modules, i.type as object_status
-                        FROM content_search_dokumente_index
-                        INNER JOIN Institute i ON i.institut_id = object_id
-                        LEFT JOIN user_inst ui ON ui.institut_id=i.institut_id AND ui.user_id=?
-                        WHERE (MATCH(content_search_dokumente_index.name,description,filename,owner,content,filetype) AGAINST (? IN BOOLEAN MODE))";
-                $st = DbManager::get()->prepare($sql);
-                $st->execute(array($GLOBALS['user']->id, $search_for));
-                while($row = $st->fetch(PDO::FETCH_ASSOC)) {
-                    $_SESSION['_search_data']['_search_result'][$row['dokument_id']] = $row;
-                    $object_ids[$row['object_id']]['docs'][] = $row['dokument_id'];
-                    $object_ids[$row['object_id']]['status'] = $row['object_status'];
-                    $object_ids[$row['object_id']]['type'] = $row['object_type'];
-                    $object_ids[$row['object_id']]['modules'] = $row['modules'];
-                    $object_ids[$row['object_id']]['user_status'] = $row['object_perm'];
+                if (!$sem_choosen) {
+                    $sql = "SELECT content_search_dokumente_index.*, 'inst' as object_type, 1 as access_granted, inst_perms as object_perm,modules, i.type as object_status
+                            FROM content_search_dokumente_index
+                            INNER JOIN Institute i ON i.institut_id = object_id
+                            LEFT JOIN user_inst ui ON ui.institut_id=i.institut_id AND ui.user_id=?
+                            WHERE (MATCH(content_search_dokumente_index.name,description,filename,owner,content,filetype) AGAINST (? IN BOOLEAN MODE))";
+                    $st = DbManager::get()->prepare($sql);
+                    $st->execute(array($GLOBALS['user']->id, $search_for));
+                    while($row = $st->fetch(PDO::FETCH_ASSOC)) {
+                        $_SESSION['_search_data']['_search_result'][$row['dokument_id']] = $row;
+                        $object_ids[$row['object_id']]['docs'][] = $row['dokument_id'];
+                        $object_ids[$row['object_id']]['status'] = $row['object_status'];
+                        $object_ids[$row['object_id']]['type'] = $row['object_type'];
+                        $object_ids[$row['object_id']]['modules'] = $row['modules'];
+                        $object_ids[$row['object_id']]['user_status'] = $row['object_perm'];
+                    }
                 }
                 $modules = new Modules();
                 $user_domains = UserDomain::getUserDomainsForUser($GLOBALS['user']->id);
