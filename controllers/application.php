@@ -1,6 +1,7 @@
 <?
+require_once 'app/controllers/studip_controller.php';
 
-class ApplicationController extends Trails_Controller{
+class ApplicationController extends StudipController{
 
     function __construct($dispatcher) {
         parent::__construct($dispatcher);
@@ -13,9 +14,8 @@ class ApplicationController extends Trails_Controller{
         $this->flash = Trails_Flash::instance();
         $this->standard_templates = $GLOBALS['STUDIP_BASE_PATH'] . '/templates/';
         $this->standard_trails_root = $GLOBALS['STUDIP_BASE_PATH'] . '/app/';
-        $this->set_layout('layout.php');
+        $this->set_layout($GLOBALS['template_factory']->open('layouts/base.php'));
         PageLayout::setTitle($this->plugin->getDisplayTitle());
-
         $this->url = $this->plugin->getPluginUrl(). '/public/';
         PageLayout::addHeadElement('link', array("rel"  => "stylesheet",
                                            "href" => $this->url . "stylesheets/application.css",
@@ -24,10 +24,7 @@ class ApplicationController extends Trails_Controller{
         PageLayout::addHeadElement('script', array("src"  => $this->url . "javascripts/application.js",
                                              "type" => "text/javascript"
                                            ));
-    }
-
-    function rescue($exception){
-        throw $exception;
+        $this->validate_args($args);
     }
 
     public function is_xhr()
@@ -56,16 +53,12 @@ class ApplicationController extends Trails_Controller{
     }
 
     function flash_set($type, $message, $submessage = array()){
-        $old = (array)$this->flash->get('msg');
-        $new = array_merge($old, array(array($type, $message, (array)$submessage)));
-        $this->flash->set('msg', $new);
+        $msg = call_user_func(array('MessageBox',$type), $message, (array)$submessage);
+        PageLayout::postMessage($msg);
     }
 
     function flash_now($type, $message, $submessage = array()){
-        $old = (array)$this->flash->get('msg');
-        $new = array_merge($old, array(array($type, $message, (array)$submessage)));
-        $this->flash->set('msg', $new);
-        $this->flash->discard('msg');
+        $this->flash_set($type, $message, $submessage);
     }
 
     function render_json($data){
@@ -73,3 +66,4 @@ class ApplicationController extends Trails_Controller{
         return $this->render_text(json_encode($data));
     }
 }
+

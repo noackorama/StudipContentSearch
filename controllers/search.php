@@ -11,7 +11,9 @@ class SearchController extends ApplicationController
         PageLayout::addStylesheet('jquery-ui-multiselect.css');
         PageLayout::addScript('ui.multiselect.js');
         parent::before_filter($action, $args);
-        $_SESSION['_search_data']['_search_result'] = unserialize(gzuncompress($_SESSION['_search_data']['_search_result']));
+        if (isset($_SESSION['_search_data']['_search_result'])) {
+            $_SESSION['_search_data']['_search_result'] = unserialize(gzuncompress($_SESSION['_search_data']['_search_result']));
+        }
     }
 
     function after_filter($action, $args)
