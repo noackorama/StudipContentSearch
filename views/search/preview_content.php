@@ -31,7 +31,11 @@ if ($result){
 	if ($result['content']){
 		$content .= "<b>" . sprintf(_("Inhalt (Textdarstellung)")) . ":</b>";
 		$content .= "<div style=\"margin-left:10px;margin-right:10px;font-size:80%;max-height:700px;overflow:auto\">";
-		$content .= $controller->highlight_search(htmlReady($result['content'],1,1),1) ;
+		if ($search_data['_search_only']['content']) {
+		    $content .= $controller->highlight_search(htmlReady($result['content'],1,1),1) ;
+		} else {
+		    $content .= htmlReady($result['content'],1,1);
+		}
 		$content .= "</div><br>";
 	}
 	$ext = strtolower(GetFileExtension($result['filename']));

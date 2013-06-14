@@ -5,14 +5,14 @@
 <form action="<?=$controller->url_for('search/perform')?>" method="post">
 <table width = "100%" border="0" cellspacing = "0" cellpadding = "2" align="center">
 <tr>
-    <td>
+    <td width="20%">
     <b><?=_("Suchbegriff(e)")?></b>
     <a href="<?=$controller->url_for('search/help/suchbegriff')?>" target="_blank"
     onClick="STUDIP.ContentSearchDialog.initialize(this.href);return false;">
     <?=Assets::img('icons/16/black/info-circle.png',  '' . tooltip("Klicken für Hinweise zur Eingabe der Suchbegriffe"))?>
     </a>
     </td>
-    <td align="left" width="75%" colspan="2">
+    <td align="left" colspan="2">
     <input name="search_query" size="60" style="width:90%" value="<?=htmlready($search_data['_search_query'])?>">
     </td>
     </tr>
@@ -21,6 +21,7 @@
         <td>
         <b><?=_("Suche einschränken")?></b>
         </td>
+        <!--
         <td align="left" width="35%">
         <input name="search_only[my_sem]" id="search_only[my_sem]" value="1" type="checkbox" style="vertical-align:middle" <?=($search_data['_search_only']['my_sem'] ? 'checked' : '')?>>
         <label for="search_only[my_sem]" style="font-weight:bold;"><?=_("Nur meine Veranstaltungen")?></label>
@@ -28,6 +29,12 @@
         <td align="left" width="35%">
         <input name="search_only[public_sem]" id="search_only[public_sem]" value="1" type="checkbox" style="vertical-align:middle" <?=($search_data['_search_only']['public_sem'] ? 'checked' : '')?>>
         <label for="search_only[public_sem]" style="font-size:10pt;font-weight:bold;">&nbsp;<?=_("Alle zugänglichen Veranstaltungen")?></label>
+        </td>
+        -->
+        <td align="left" colspan="2" style="white-space: nowrap;">
+         <input name="search_only[my_sem]" value="1" type="hidden">
+        <input name="search_only[content]" id="search_only[content]" value="1" type="checkbox" style="vertical-align:middle" <?=($search_data['_search_only']['content'] ? 'checked' : '')?>>
+        <label for="search_only[content]" style="font-size:10pt;font-weight:bold;">&nbsp;<?=_("Auch in Dateiinhalten suchen")?></label>
         </td>
         </tr>
         <tr>

@@ -32,7 +32,7 @@ class SearchController extends ApplicationController
             $_SESSION['_search_data']['_search_only']['my_sem'] = 1;
             $_SESSION['_search_data']['_search_only']['ext']['all'] = 1;
         }
-        if($this->do_sort){
+        if($this->flash['do_sort']){
             $sorter = new ArraySorter();
             $sorter->sort_field = $_SESSION['_search_data']['sortby'];
             $sorter->sort_flag = ($_SESSION['_search_data']['sortby'] == 'chdate' ? 'numeric' : 'string');
@@ -61,7 +61,7 @@ class SearchController extends ApplicationController
             $_SESSION['_search_data']['_search_only'] = Request::getArray('search_only');
             unset($_SESSION['_search_data']['_search_result']);
             $_SESSION['_search_data']['_start_result'] = 1;
-            $this->do_sort = true;
+            $this->flash['do_sort'] = true;
         }
         if (Request::submitted('cancel')) {
             unset($_SESSION['_search_data']['_search_query']);
@@ -78,20 +78,27 @@ class SearchController extends ApplicationController
             }
             $sem_choosen = is_array($_SESSION['_search_data']['_search_only']['choose_sem']);
             $object_ids = array();
-            if (0 === preg_match('/["*+-<>~()]+/', $_SESSION['_search_data']['_search_query'])) {
+            if (0 === preg_match('/["+<>~()-]+/', $_SESSION['_search_data']['_search_query'])) {
                 $suchwoerter = explode(" ", $_SESSION['_search_data']['_search_query']);
                 foreach($suchwoerter as $key => $word) {
                     $suchwoerter[$key] = '+'.$word;
                 }
                 $_SESSION['_search_data']['_search_query'] = implode(" ", $suchwoerter);
+            } else if (0 === preg_match('/["+<>~()-]+/', $_SESSION['_search_data']['_search_query'][0])) {
+                $_SESSION['_search_data']['_search_query'] = '+' . $_SESSION['_search_data']['_search_query'];
             }
             $search_for = '+('.$_SESSION['_search_data']['_search_query'] .')'. $search_exts;
+            if ($_SESSION['_search_data']['_search_only']['content']) {
+                $content = ',content';
+            } else {
+                $content = '';
+            }
             if(!$GLOBALS['perm']->have_perm('root')) {
                 if($_SESSION['_search_data']['_search_only']['my_sem'] || $sem_choosen){
                     $sql = "SELECT content_search_dokumente_index.*, 'sem' as object_type, 1 as access_granted,modules,su.status as object_perm, s.status as object_status FROM seminar_user su
                             INNER JOIN content_search_dokumente_index ON(seminar_id=object_id)
                             INNER JOIN seminare s ON s.seminar_id = su.seminar_id
-                            WHERE su.user_id=? AND (MATCH(content_search_dokumente_index.name,description,filename,owner,content,filetype) AGAINST (? IN BOOLEAN MODE)) ";
+                            WHERE su.user_id=? AND (MATCH(content_search_dokumente_index.name,description,filename,owner,filetype $content) AGAINST (? IN BOOLEAN MODE)) ";
                     if ($sem_choosen) {
                         $sql .= " AND su.seminar_id IN(?)";
                         $params = array($GLOBALS['user']->id, $search_for, $_SESSION['_search_data']['_search_only']['choose_sem']);
@@ -115,7 +122,7 @@ class SearchController extends ApplicationController
                         WHERE s.seminar_id NOT IN(?) AND s.visible=1 AND s.Lesezugriff IN(0,1) AND admission_type=0
                         AND (admission_endtime_sem = -1 OR admission_endtime_sem > UNIX_TIMESTAMP())
                         AND (admission_starttime = -1 OR admission_starttime < UNIX_TIMESTAMP())
-                        AND (MATCH(content_search_dokumente_index.name,description,filename,owner,content,filetype) AGAINST (? IN BOOLEAN MODE))
+                        AND (MATCH(content_search_dokumente_index.name,description,filename,owner,filetype $content) AGAINST (? IN BOOLEAN MODE))
                         ";
                     $st = DbManager::get()->prepare($sql);
                     $not_in = array_keys($object_ids);
@@ -136,7 +143,7 @@ class SearchController extends ApplicationController
                             FROM content_search_dokumente_index
                             INNER JOIN Institute i ON i.institut_id = object_id
                             LEFT JOIN user_inst ui ON ui.institut_id=i.institut_id AND ui.user_id=?
-                            WHERE (MATCH(content_search_dokumente_index.name,description,filename,owner,content,filetype) AGAINST (? IN BOOLEAN MODE))";
+                            WHERE (MATCH(content_search_dokumente_index.name,description,filename,owner,filetype $content) AGAINST (? IN BOOLEAN MODE))";
                     $st = DbManager::get()->prepare($sql);
                     $st->execute(array($GLOBALS['user']->id, $search_for));
                     while($row = $st->fetch(PDO::FETCH_ASSOC)) {
@@ -187,7 +194,7 @@ class SearchController extends ApplicationController
                         FROM content_search_dokumente_index
                         LEFT JOIN seminare ON object_id = seminar_id
                         LEFT JOIN Institute ON Institute.institut_id = object_id
-                        WHERE (MATCH(content_search_dokumente_index.name,description,filename,owner,content,filetype) AGAINST (? IN BOOLEAN MODE))";
+                        WHERE (MATCH(content_search_dokumente_index.name,description,filename,owner,filetype $content) AGAINST (? IN BOOLEAN MODE))";
                     $st = DbManager::get()->prepare($sql);
                     $st->execute(array($search_for));
                     while($row = $st->fetch(PDO::FETCH_ASSOC)) {
@@ -210,8 +217,7 @@ class SearchController extends ApplicationController
 
     function change_start_result_action(){
         $_SESSION['_search_data']['_start_result'] = array_shift(func_get_args());
-        $this->index_action();
-        $this->render_action('index');
+        $this->redirect($this->url_for('search'));
     }
 
     function sort_action(){
@@ -222,14 +228,14 @@ class SearchController extends ApplicationController
             $_SESSION['_search_data']['sortby'] = $sortby;
         }
         $_SESSION['_search_data']['_start_result']  = 1;
-        $this->do_sort = true;
-        $this->index_action();
-        $this->render_action('index');
+        $this->flash['do_sort'] = true;
+        $this->redirect($this->url_for('search'));
     }
 
     function preview_action(){
         $document_id = array_shift(func_get_args());
         $this->result = $this->get_search_result($_SESSION['_search_data']['_search_result'][$document_id]);
+        $this->search_data = $_SESSION['_search_data'];
         if ($this->is_xhr()) {
             $this->render_template('search/preview_content.php');
             $this->flash->discard();

@@ -94,7 +94,7 @@ $end_result = (($search_data['_start_result'] + 5 > $num_hits) ? $num_hits : $se
                              $content .= $controller->highlight_search(htmlReady($hits[0],1,1),1) ;
                              $content .= "</div><br>";
                         }
-                        if ($hits = $controller->get_search_excerpt($result['content'])){
+                        if ($search_data['_search_only']['content'] && ($hits = $controller->get_search_excerpt($result['content']))){
                              $content .= "<b>" . sprintf(_("Inhalt (%s Fundstellen)"), count($hits)) . ":</b>";
                              $content .= "<div style=\"margin-left:10px;margin-right:10px;font-size:80%\">";
                              $content .= $controller->highlight_search(htmlReady($hits[0],1,1),1) ;
