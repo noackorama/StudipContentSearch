@@ -48,7 +48,7 @@ class SearchController extends ApplicationController
         $this->search_data = $_SESSION['_search_data'];
         $this->extensions = $this->get_used_file_extensions();
         if (in_array($GLOBALS['perm']->get_perm(), words('autor tutor dozent'))) {
-            $this->my_sem = array_filter(array_map(function($a) {return $a['type'] == 'sem' ? $a['name'] : null;}, search_range(true,false,false)));
+            $this->my_sem = User::find($GLOBALS['user']->id)->course_memberships->toGroupedArray('seminar_id','course_name', function($a) {return current(current($a));});
             natcasesort($this->my_sem);
         }
         $this->get_infobox_content();
@@ -74,18 +74,21 @@ class SearchController extends ApplicationController
         if (!$_SESSION['_search_data']['_search_result'] && strlen($_SESSION['_search_data']['_search_query']) > 2){
             $_SESSION['_search_data']['_search_result'] = null;
             if (!$_SESSION['_search_data']['_search_only']['ext']['all'] && count($_SESSION['_search_data']['_search_only']['ext'])) {
-                $search_exts = ' +(' . join(' ', array_map(create_function('$e','return str_pad($e,6,"_",STR_PAD_BOTH);'),array_keys($_SESSION['_search_data']['_search_only']['ext']))).')';
+                $search_exts = ' +(' . join(' ', array_map(function($e) {return str_pad($e,6,"_",STR_PAD_BOTH);},array_keys($_SESSION['_search_data']['_search_only']['ext']))).')';
             }
             $sem_choosen = is_array($_SESSION['_search_data']['_search_only']['choose_sem']);
             $object_ids = array();
-            if (0 === preg_match('/["+<>~()-]+/', $_SESSION['_search_data']['_search_query'])) {
-                $suchwoerter = explode(" ", $_SESSION['_search_data']['_search_query']);
-                foreach($suchwoerter as $key => $word) {
-                    $suchwoerter[$key] = '+'.$word;
+            if (!$_SESSION['_search_data']['_search_only']['exact']) {
+                if (0 === preg_match('/["+<>~()-]+/', $_SESSION['_search_data']['_search_query'])) {
+                    $suchwoerter = explode(" ", $_SESSION['_search_data']['_search_query']);
+                    foreach($suchwoerter as $key => $word) {
+                        if (substr($word,0,-1) !== '*') $word .= '*';
+                        $suchwoerter[$key] = '+'.$word;
+                    }
+                    $_SESSION['_search_data']['_search_query'] = implode(" ", $suchwoerter);
+                } else if (0 === preg_match('/["+<>~()-]+/', $_SESSION['_search_data']['_search_query'][0])) {
+                    $_SESSION['_search_data']['_search_query'] = '+' . $_SESSION['_search_data']['_search_query'];
                 }
-                $_SESSION['_search_data']['_search_query'] = implode(" ", $suchwoerter);
-            } else if (0 === preg_match('/["+<>~()-]+/', $_SESSION['_search_data']['_search_query'][0])) {
-                $_SESSION['_search_data']['_search_query'] = '+' . $_SESSION['_search_data']['_search_query'];
             }
             $search_for = '+('.$_SESSION['_search_data']['_search_query'] .')'. $search_exts;
             if ($_SESSION['_search_data']['_search_only']['content']) {
@@ -324,7 +327,7 @@ class SearchController extends ApplicationController
                         if ($html_ready){
                             $tmp3 = htmlReady($tmp3);
                         }
-                        $search_words[$html_ready][] = '/\b' . preg_quote($tmp3) . '\S*\b/i';
+                        $search_words[$html_ready][] = '/\b' . preg_quote($tmp3) . '\w*\b/i';
                     } else {
                         if ($html_ready){
                             $tmp3 = htmlReady($tmp3);

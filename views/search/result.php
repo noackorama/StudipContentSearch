@@ -1,5 +1,5 @@
 <?
-$end_result = (($search_data['_start_result'] + 5 > $num_hits) ? $num_hits : $search_data['_start_result'] + 4);
+$end_result = (($search_data['_start_result'] + 10 > $num_hits) ? $num_hits : $search_data['_start_result'] + 9);
 ?>
 <table width="100%" border="0" cellpadding="2" cellspacing="0">
      <tr>
@@ -9,16 +9,16 @@ $end_result = (($search_data['_start_result'] + 5 > $num_hits) ? $num_hits : $se
           echo _("Anzeige: ");
           if ($search_data['_start_result'] > 1) {
                echo "<a href=\"".$controller->url_for('search/change_start_result/'
-                    . ($search_data['_start_result'] - 5)) . "\">"
+                    . ($search_data['_start_result'] - 10)) . "\">"
                     . Assets::Img('icons/16/yellow/arr_1left.png',array('style' => 'vertical-align:middle'))
                     . "</a>";
           } else {
                echo Assets::Img('blank.gif', "width=\"16\" height=\"16\"");
           }
           echo $search_data['_start_result'] . " - " . $end_result;
-          if ($search_data['_start_result'] + 4 < $num_hits) {
+          if ($search_data['_start_result'] + 9 < $num_hits) {
                echo "<a href=\"".$controller->url_for('search/change_start_result/'
-                    . ($search_data['_start_result'] + 5)) . "\">"
+                    . ($search_data['_start_result'] + 10)) . "\">"
                . Assets::Img('icons/16/yellow/arr_1right.png', array('style' => 'vertical-align:middle'))
                     . "</a>";
           } else {
@@ -119,16 +119,16 @@ $end_result = (($search_data['_start_result'] + 5 > $num_hits) ? $num_hits : $se
           echo _("Anzeige: ");
           if ($search_data['_start_result'] > 1) {
                echo "<a href=\"".$controller->url_for('search/change_start_result/'
-                    . ($search_data['_start_result'] - 5)) . "\">"
+                    . ($search_data['_start_result'] - 10)) . "\">"
                     . Assets::Img('icons/16/yellow/arr_1left.png',array('style' => 'vertical-align:middle'))
                     . "</a>";
           } else {
                echo Assets::Img('blank.gif', "width=\"16\" height=\"16\"");
           }
           echo $search_data['_start_result'] . " - " . $end_result;
-          if ($search_data['_start_result'] + 4 < $num_hits) {
+          if ($search_data['_start_result'] + 9 < $num_hits) {
           echo "<a href=\"".$controller->url_for('search/change_start_result/'
-                    . ($search_data['_start_result'] + 5)) . "\">"
+                    . ($search_data['_start_result'] + 10)) . "\">"
                     . Assets::Img('icons/16/yellow/arr_1right.png',array('style' => 'vertical-align:middle'))
                     . "</a>";
           } else {

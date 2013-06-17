@@ -18,8 +18,8 @@
     </tr>
     <?php if(!$GLOBALS['perm']->have_perm('root')){?>
         <tr>
-        <td>
-        <b><?=_("Suche einschränken")?></b>
+        <td style="white-space:nowrap">
+        <b><?=_("Suche einschränken/erweitern")?></b>
         </td>
         <!--
         <td align="left" width="35%">
@@ -33,6 +33,8 @@
         -->
         <td align="left" colspan="2" style="white-space: nowrap;">
          <input name="search_only[my_sem]" value="1" type="hidden">
+         <input name="search_only[exact]" id="search_only[exact]" value="1" type="checkbox" style="vertical-align:middle" <?=($search_data['_search_only']['exact'] ? 'checked' : '')?>>
+        <label for="search_only[exact]" style="font-size:10pt;font-weight:bold;">&nbsp;<?=_("Suchbegriff(e) exakt finden")?></label>
         <input name="search_only[content]" id="search_only[content]" value="1" type="checkbox" style="vertical-align:middle" <?=($search_data['_search_only']['content'] ? 'checked' : '')?>>
         <label for="search_only[content]" style="font-size:10pt;font-weight:bold;">&nbsp;<?=_("Auch in Dateiinhalten suchen")?></label>
         </td>
@@ -45,7 +47,7 @@
         <? endif; ?>
         </td>
         <td align="left" colspan="2" style="white-space: nowrap;">
-        <select multiple size="3" name="search_only[choose_sem][]" id="search_only_choose_sem"  return false">
+        <select multiple size="3" name="search_only[choose_sem][]" id="search_only_choose_sem" >
         <?php
         foreach ($my_sem as $id => $name) {
             $selected = in_array($id, (array)$search_data['_search_only']['choose_sem']) ? 'selected' : '';
