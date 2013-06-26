@@ -78,17 +78,17 @@ class SearchController extends ApplicationController
             }
             $sem_choosen = is_array($_SESSION['_search_data']['_search_only']['choose_sem']);
             $object_ids = array();
-            if (!$_SESSION['_search_data']['_search_only']['exact']) {
-                if (0 === preg_match('/["+<>~()-]+/', $_SESSION['_search_data']['_search_query'])) {
-                    $suchwoerter = explode(" ", $_SESSION['_search_data']['_search_query']);
-                    foreach($suchwoerter as $key => $word) {
+            if (0 === preg_match('/["+<>~()-]+/', $_SESSION['_search_data']['_search_query'])) {
+                $suchwoerter = explode(" ", $_SESSION['_search_data']['_search_query']);
+                foreach($suchwoerter as $key => $word) {
+                    if (!$_SESSION['_search_data']['_search_only']['exact']) {
                         if (substr($word,0,-1) !== '*') $word .= '*';
-                        $suchwoerter[$key] = '+'.$word;
                     }
-                    $_SESSION['_search_data']['_search_query'] = implode(" ", $suchwoerter);
-                } else if (0 === preg_match('/["+<>~()-]+/', $_SESSION['_search_data']['_search_query'][0])) {
-                    $_SESSION['_search_data']['_search_query'] = '+' . $_SESSION['_search_data']['_search_query'];
+                    $suchwoerter[$key] = '+'.$word;
                 }
+                $_SESSION['_search_data']['_search_query'] = implode(" ", $suchwoerter);
+            } else if (0 === preg_match('/["+<>~()-]+/', $_SESSION['_search_data']['_search_query'][0])) {
+                $_SESSION['_search_data']['_search_query'] = '+' . $_SESSION['_search_data']['_search_query'];
             }
             $search_for = '+('.$_SESSION['_search_data']['_search_query'] .')'. $search_exts;
             if ($_SESSION['_search_data']['_search_only']['content']) {
