@@ -16,12 +16,23 @@
     <input name="search_query" size="60" style="width:90%" value="<?=htmlready($search_data['_search_query'])?>">
     </td>
     </tr>
+    <tr>
+    <td style="white-space:nowrap">
+        <b><?=_("Suche einschränken/erweitern")?></b>
+    </td>
+    <td align="left" colspan="2" style="white-space: nowrap;">
+         <input name="search_only[my_sem]" value="1" type="hidden">
+         <input name="search_only[exact]" id="search_only[exact]" value="1" type="checkbox" style="vertical-align:middle" <?=($search_data['_search_only']['exact'] ? 'checked' : '')?>>
+        <label for="search_only[exact]" style="font-size:10pt;font-weight:bold;">&nbsp;<?=_("Suchbegriff(e) exakt finden")?></label>
+        <input name="search_only[content]" id="search_only[content]" value="1" type="checkbox" style="vertical-align:middle" <?=($search_data['_search_only']['content'] ? 'checked' : '')?>>
+        <label for="search_only[content]" style="font-size:10pt;font-weight:bold;">&nbsp;<?=_("Auch in Dateiinhalten suchen")?></label>
+    </td>
+    </tr>
     <?php if(!$GLOBALS['perm']->have_perm('root')){?>
         <tr>
         <td style="white-space:nowrap">
-        <b><?=_("Suche einschränken/erweitern")?></b>
+        <b><?=_("Veranstaltungen wählen")?></b>
         </td>
-        <!--
         <td align="left" width="35%">
         <input name="search_only[my_sem]" id="search_only[my_sem]" value="1" type="checkbox" style="vertical-align:middle" <?=($search_data['_search_only']['my_sem'] ? 'checked' : '')?>>
         <label for="search_only[my_sem]" style="font-weight:bold;"><?=_("Nur meine Veranstaltungen")?></label>
@@ -30,18 +41,10 @@
         <input name="search_only[public_sem]" id="search_only[public_sem]" value="1" type="checkbox" style="vertical-align:middle" <?=($search_data['_search_only']['public_sem'] ? 'checked' : '')?>>
         <label for="search_only[public_sem]" style="font-size:10pt;font-weight:bold;">&nbsp;<?=_("Alle zugänglichen Veranstaltungen")?></label>
         </td>
-        -->
-        <td align="left" colspan="2" style="white-space: nowrap;">
-         <input name="search_only[my_sem]" value="1" type="hidden">
-         <input name="search_only[exact]" id="search_only[exact]" value="1" type="checkbox" style="vertical-align:middle" <?=($search_data['_search_only']['exact'] ? 'checked' : '')?>>
-        <label for="search_only[exact]" style="font-size:10pt;font-weight:bold;">&nbsp;<?=_("Suchbegriff(e) exakt finden")?></label>
-        <input name="search_only[content]" id="search_only[content]" value="1" type="checkbox" style="vertical-align:middle" <?=($search_data['_search_only']['content'] ? 'checked' : '')?>>
-        <label for="search_only[content]" style="font-size:10pt;font-weight:bold;">&nbsp;<?=_("Auch in Dateiinhalten suchen")?></label>
-        </td>
         </tr>
         <tr>
         <td>
-        <b><?=_("Veranstaltungen wählen")?></b>
+        &nbsp;
         <? if (is_array($search_data['_search_only']['choose_sem'])) : ?>
         <span style="padding-left:5px;font-size:smaller"><?=sprintf('(%s ausgewählt)', count($search_data['_search_only']['choose_sem']))?></span>
         <? endif; ?>
@@ -56,7 +59,7 @@
         ?>
         </select>
         <a href="#" onClick="jQuery('#search_only_choose_sem').css('height', '120px'); STUDIP.MultiSelect.create('#search_only_choose_sem', 'Veranstaltungen'); jQuery(this).hide(); return false">
-        <?=Assets::img("icons/16/blue/plus.png", array('title' => _("Mehrere Veranstaltungen auswählen"), "class" => "middle"))?>
+        <?=Assets::img("icons/16/blue/tools.png", array('title' => _("Mehrere Veranstaltungen auswählen"), "class" => "middle"))?>
         </a>
         </td>
         </tr>

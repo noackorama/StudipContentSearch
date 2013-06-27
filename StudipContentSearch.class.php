@@ -18,8 +18,6 @@ class StudipContentSearch extends StudIPPlugin implements SystemPlugin {
         Navigation::addItem("/$this->me", $navigation);
         Navigation::addItem("/start/search/$this->me", $subnav1);
         Navigation::addItem("/search/$this->me", $navigation);
-        $search = Navigation::getItem("/search");
-        $search->setUrl($subnav1->getUrl());
         if($GLOBALS["perm"]->have_perm("root")){
             $subnav2 = new Navigation(_("Konfiguration"));
             $subnav2->setURL(PluginEngine::getURL("$this->me/configuration"));
