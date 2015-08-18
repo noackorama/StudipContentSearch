@@ -13,7 +13,7 @@ $end_result = (($search_data['_start_result'] + 10 > $num_hits) ? $num_hits : $s
                     . Assets::Img('icons/16/yellow/arr_1left.png',array('style' => 'vertical-align:middle'))
                     . "</a>";
           } else {
-               echo Assets::Img('blank.gif', "width=\"16\" height=\"16\"");
+               echo Assets::Img('blank.gif', array('width' => "16"));
           }
           echo $search_data['_start_result'] . " - " . $end_result;
           if ($search_data['_start_result'] + 9 < $num_hits) {
@@ -22,7 +22,7 @@ $end_result = (($search_data['_start_result'] + 10 > $num_hits) ? $num_hits : $s
                . Assets::Img('icons/16/yellow/arr_1right.png', array('style' => 'vertical-align:middle'))
                     . "</a>";
           } else {
-               echo Assets::Img('blank.gif', "width=\"16\" height=\"16\"");
+               echo Assets::Img('blank.gif', array('width' => "16"));
           }
           ?></td>
      </tr>
@@ -123,7 +123,7 @@ $end_result = (($search_data['_start_result'] + 10 > $num_hits) ? $num_hits : $s
                     . Assets::Img('icons/16/yellow/arr_1left.png',array('style' => 'vertical-align:middle'))
                     . "</a>";
           } else {
-               echo Assets::Img('blank.gif', "width=\"16\" height=\"16\"");
+               echo Assets::Img('blank.gif', array('width' => "16"));
           }
           echo $search_data['_start_result'] . " - " . $end_result;
           if ($search_data['_start_result'] + 9 < $num_hits) {
@@ -132,7 +132,7 @@ $end_result = (($search_data['_start_result'] + 10 > $num_hits) ? $num_hits : $s
                     . Assets::Img('icons/16/yellow/arr_1right.png',array('style' => 'vertical-align:middle'))
                     . "</a>";
           } else {
-               echo Assets::Img('blank.gif', "width=\"16\" height=\"16\"");
+               echo Assets::Img('blank.gif', array('width' => "16"));
           }
      ?></td>
      </tr>

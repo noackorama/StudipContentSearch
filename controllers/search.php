@@ -122,9 +122,8 @@ class SearchController extends ApplicationController
                 if($_SESSION['_search_data']['_search_only']['public_sem'] && !$sem_choosen) {
                     $sql = "SELECT content_search_dokumente_index.*, 'sem' as object_type, 0 as access_granted,modules,s.status as object_status FROM seminare s
                     INNER JOIN content_search_dokumente_index ON(seminar_id=object_id)
-                        WHERE s.seminar_id NOT IN(?) AND s.visible=1 AND s.Lesezugriff IN(0,1) AND admission_type=0
-                        AND (admission_endtime_sem = -1 OR admission_endtime_sem > UNIX_TIMESTAMP())
-                        AND (admission_starttime = -1 OR admission_starttime < UNIX_TIMESTAMP())
+                    LEFT JOIN seminar_courseset sc ON sc.seminar_id = s.seminar_id
+                        WHERE s.seminar_id NOT IN(?) AND s.visible=1 AND sc.set_id IS NULL
                         AND (MATCH(content_search_dokumente_index.name,description,filename,owner,filetype $content) AGAINST (? IN BOOLEAN MODE))
                         ";
                     $st = DbManager::get()->prepare($sql);
@@ -272,7 +271,7 @@ class SearchController extends ApplicationController
             if ($_SESSION['_search_data']['sortby'] == 'chdate'){
                 $sorttext .= Assets::img($sorticon);
             } else {
-                $sorttext .= Assets::img('blank.gif', 'width="16"');
+                $sorttext .= Assets::img('blank.gif', array('width' => "16"));
             }
             $sorttext .= '&nbsp;' . _("Datum");
             if ($_SESSION['_search_data']['sortby'] == 'chdate'){
@@ -283,7 +282,7 @@ class SearchController extends ApplicationController
             if ($_SESSION['_search_data']['sortby'] == 'owner'){
                 $sorttext .= Assets::img($sorticon);
             } else {
-                $sorttext .= Assets::img('blank.gif', 'width="16"');
+                $sorttext .= Assets::img('blank.gif', array('width' => "16"));
             }
             $sorttext .= '&nbsp;' ._("Name des Autors");
             if ($_SESSION['_search_data']['sortby'] == 'owner'){

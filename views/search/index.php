@@ -9,7 +9,7 @@
     <b><?=_("Suchbegriff(e)")?></b>
     <a href="<?=$controller->url_for('search/help/suchbegriff')?>" target="_blank"
     onClick="STUDIP.ContentSearchDialog.initialize(this.href);return false;">
-    <?=Assets::img('icons/16/black/info-circle.png',  '' . tooltip("Klicken für Hinweise zur Eingabe der Suchbegriffe"))?>
+    <?=Assets::img('icons/16/grey/info-circle.png', array("title" => "Klicken für Hinweise zur Eingabe der Suchbegriffe"))?>
     </a>
     </td>
     <td align="left" colspan="2">
@@ -50,7 +50,7 @@
         <? endif; ?>
         </td>
         <td align="left" colspan="2" style="white-space: nowrap;">
-        <select multiple size="3" name="search_only[choose_sem][]" id="search_only_choose_sem" >
+        <select multiple size="3" name="search_only[choose_sem][]" id="search_only_choose_sem" style="width:90%">
         <?php
         foreach ($my_sem as $id => $name) {
             $selected = in_array($id, (array)$search_data['_search_only']['choose_sem']) ? 'selected' : '';
